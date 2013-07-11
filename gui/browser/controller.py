@@ -19,12 +19,21 @@ class Controller(BaseController):
         self.register_command(command.CMD_ENTER, self.enter)
         self.register_command(command.CMD_UP, self.up)
 
-    # TODO: Save stack of the last selected path history.
-    def set_path(self, path):
+        self.selected = 0
+        self.selected_hist = []
+
+    def set_path(self, path, forward=True):
         up_path = os.path.normpath(os.path.join(path, '..'))
         up = Directory('..', up_path)
         self.entries = [up] + self.client.ls(path)
-        self.selected = 0
+
+        if forward:
+            self.selected_hist.append(self.selected)
+            self.selected = 0
+        elif len(self.selected_hist):
+            self.selected = self.selected_hist.pop()
+        else:
+            self.selected = 0
 
         self.window.set_path(path)
         self.window.set_selected(self.selected)
@@ -44,14 +53,13 @@ class Controller(BaseController):
             self.window.refresh()
 
     def enter(self):
-        if len(self.entries):
-            e = self.entries[self.selected]
-            if isinstance(e, Directory):
-                self.set_path(e.path)
-            else:
-                # TODO: Play track.
-                pass
+        e = self.entries[self.selected]
+        if isinstance(e, Directory):
+            self.set_path(e.path, self.selected != 0)
+        else:
+            # TODO: Play track.
+            pass
 
     def back(self):
         updir = self.entries[0]
-        self.set_path(updir.path)
+        self.set_path(updir.path, False)
