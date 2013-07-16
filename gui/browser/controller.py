@@ -19,21 +19,21 @@ class Controller(BaseController):
         self.register_command(command.CMD_ENTER, self.enter)
         self.register_command(command.CMD_UP, self.up)
 
+        self.path = '/'
         self.selected = 0
-        self.selected_hist = []
 
     def set_path(self, path, forward=True):
         up_path = os.path.normpath(os.path.join(path, '..'))
         up = Directory('..', up_path)
         self.entries = [up] + self.client.ls(path)
 
-        if forward:
-            self.selected_hist.append(self.selected)
-            self.selected = 0
-        elif len(self.selected_hist):
-            self.selected = self.selected_hist.pop()
-        else:
-            self.selected = 0
+        # Restore selection on navigation back.
+        self.selected = 0
+        for i in range(len(self.entries)):
+            e = self.entries[i]
+            if self.is_directory(e) and e.path == self.path:
+                self.selected = i
+        self.path = path
 
         self.window.set_path(path)
         self.window.set_selected(self.selected)
@@ -54,7 +54,7 @@ class Controller(BaseController):
 
     def enter(self):
         e = self.entries[self.selected]
-        if isinstance(e, Directory):
+        if self.is_directory(e):
             self.set_path(e.path, self.selected != 0)
         else:
             # TODO: Play track.
@@ -63,3 +63,6 @@ class Controller(BaseController):
     def back(self):
         updir = self.entries[0]
         self.set_path(updir.path, False)
+
+    def is_directory(self, e):
+        return isinstance(e, Directory)
