@@ -9,9 +9,8 @@ class Controller(BaseController):
     Browser controller handles commands addressed to the browser window.
     """
     def __init__(self, window, client):
-        super().__init__()
+        super().__init__(window)
 
-        self.window = window
         self.client = client
 
         self.register_command(command.CMD_BACK, self.cmd_back)

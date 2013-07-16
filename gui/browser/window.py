@@ -1,16 +1,18 @@
 import curses
+from curses import panel
+from gui.basewindow import BaseWindow
 
 
-class Window:
+class Window(BaseWindow):
     """
     Filesystem browser window.
     """
     def __init__(self, height, width, y, x):
-        self.win = curses.newwin(height, width, y, x)
-        max_y, max_x = self.win.getmaxyx()
+        super().__init__(height, width, y, x)
+        max_y, max_x = self.window.getmaxyx()
 
-        self.path_win = self.win.subwin(1, max_x, 0, 0)
-        self.entries_win = self.win.subwin(max_y - 1, max_x, 1, 0)
+        self.path_win = self.window.subwin(1, max_x, 0, 0)
+        self.entries_win = self.window.subwin(max_y - 1, max_x, 1, 0)
 
         self.selected = 0
         self.entries = []
@@ -27,7 +29,8 @@ class Window:
         """
         Redraw window.
         """
-        self.win.refresh()
+        super().refresh()
+
         self.path_win.refresh()
         self.entries_win.refresh()
 

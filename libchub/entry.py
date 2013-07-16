@@ -4,8 +4,11 @@ class Playlist:
     """
     __slots__ = ['name', 'length']
     def __init__(self, name, length):
-        self.name = mame
+        self.name = name
         self.length = length
+
+    def __str__(self):
+        return self.name
 
 
 class Directory:

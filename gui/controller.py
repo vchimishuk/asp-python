@@ -1,6 +1,7 @@
 import curses
-from gui import browser
 from gui import command
+from gui import browser
+from gui import playlist
 
 
 class Controller:
@@ -14,18 +15,25 @@ class Controller:
     def __init__(self, client):
         self.client = client
 
-        self.browser_window = browser.Window(curses.LINES, curses.COLS, 0, 0)
+        width = curses.LINES
+        height = curses.COLS
+
+        self.browser_window = browser.Window(width, height, 0, 0)
         self.browser_controller = browser.Controller(self.browser_window, client)
         self.browser_controller.set_path('/')
 
-        self.default_controller = self.browser_controller
+        self.playlist_window = playlist.Window(width, height, 0, 0)
+        self.playlist_controller = playlist.Controller(self.playlist_window, client)
+
+        self.current_controller = self.browser_controller
+        self.current_controller.activate()
 
     def on_command(self, cmd):
         """
         Handle user input command.
         """
         if not self.handle_command(cmd):
-            self.default_controller.on_command(cmd)
+            self.current_controller.on_command(cmd)
 
     def handle_command(self, cmd):
         """
@@ -39,7 +47,20 @@ class Controller:
             # TODO: Exit not like english gentleman.
             import sys
             sys.exit(0)
+        if cmd == command.CMD_TOGGLE_SCREEN:
+            self.cmd_toggle_screen()
         else:
             return False
 
         return True
+
+    def cmd_toggle_screen(self):
+        """
+        Rotate current screen.
+        """
+        if self.current_controller == self.browser_controller:
+            self.current_controller = self.playlist_controller
+        else:
+            self.current_controller = self.browser_controller
+
+        self.current_controller.activate()

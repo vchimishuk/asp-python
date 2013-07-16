@@ -3,7 +3,7 @@ import curses
 import libchub
 import time
 
-from gui import Controller
+from gui.controller import Controller
 from gui import command
 
 
