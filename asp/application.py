@@ -8,6 +8,12 @@ import playlist
 
 class Application:
     def __init__(self, stdscr):
+        stdscr.clear()
+        acurses.echo(False)
+        acurses.cbreak()
+        acurses.cursor(False)
+        stdscr.refresh()
+
         self.stdscr = stdscr
         self.client = libchub.Client()
 
@@ -67,22 +73,3 @@ class Application:
     def cmd_quit(self):
         # TODO: Normal exit process.
         raise Exception('quit')
-
-
-def init_acurses(stdscr):
-    stdscr.clear()
-    acurses.echo(False)
-    acurses.cbreak()
-    acurses.cursor(False)
-    stdscr.refresh()
-
-
-def main(stdscr):
-    init_acurses(stdscr)
-
-    app = Application(stdscr)
-    app.run()
-
-
-if __name__ == '__main__':
-    acurses.wrapper(main)

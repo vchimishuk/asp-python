@@ -2,6 +2,7 @@ import os
 import controller
 import window
 import command
+import color
 from libchub.entry import Directory
 
 
@@ -72,6 +73,7 @@ class Window(window.Window):
         super().__init__(x, y, width, height)
 
         self.path_win = self.subwin(self.x, self.y, self.width, 1)
+        self.path_win.set_background(color.BROWSER_PATH)
         self.list_win = self.subwin(self.x, self.y + 1, self.width, self.height - 1)
 
         self.selected = 0
@@ -95,11 +97,12 @@ class Window(window.Window):
         # TODO: Set entry formatter via setter.
         for y in range(len(entries)):
             s = str(entries[y])
+            c = None
 
             if self.selected == y:
-                self.list_win.write(1, y, '*' + s + '*') # TODO: Colorize
-            else:
-                self.list_win.write(1, y, s)
+                c = color.SELECTED
+
+            self.list_win.write(1, y, s, c)
 
     def set_selected(self, i):
         self.selected = i

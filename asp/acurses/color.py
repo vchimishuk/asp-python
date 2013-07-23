@@ -1,8 +1,19 @@
-        # # XXX:
-        # curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_BLUE)
-        # BG1 = curses.color_pair(1)
-        # self.path_win.bkgd(' ', BG1)
-        # curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_GREEN)
-        # self.BG2 = curses.color_pair(2)
-        # #self.entries_win.bkgd(' ', BG2)
+import curses
 
+
+BLACK = curses.COLOR_BLACK
+BLUE = curses.COLOR_BLUE
+CYAN = curses.COLOR_CYAN
+GREEN = curses.COLOR_GREEN
+MAGENTA = curses.COLOR_MAGENTA
+RED = curses.COLOR_RED
+WHITE = curses.COLOR_WHITE
+YELLOW = curses.COLOR_YELLOW
+
+
+def init_pair(n, fg, bg):
+    curses.init_pair(n, fg, bg)
+
+
+def color_pair(n):
+    return curses.color_pair(n)

@@ -18,8 +18,11 @@ class Window:
     def subwin(self, x, y, width, height):
         return self.win.subwin(x, y, width, height)
 
-    def write(self, x, y, text, maxlen=None):
-        self.win.write(x, y, text, maxlen)
+    def write(self, x, y, text, color=None, maxlen=None):
+        self.win.write(x, y, text, color, maxlen)
+
+    def set_background(self, c):
+        self.wind.bkgd(c)
 
     @property
     def x(self):

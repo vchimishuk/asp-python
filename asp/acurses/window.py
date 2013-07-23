@@ -15,11 +15,21 @@ class Window:
     def subwin(self, x, y, width, height):
         return Window(x, y, width, height, self.win)
 
-    def write(self, x, y, text, maxlen=None):
+    def write(self, x, y, text, color=None, maxlen=None):
+        args = [y, x, text]
+
+        if color is not None:
+            args.append(color.pair)
+        if maxlen is not None:
+            args.append(maxlen)
+
         if maxlen:
-            self.win.addnstr(y, x, text, maxlen)
+            self.win.addnstr(*args)
         else:
-            self.win.addstr(y, x, text)
+            self.win.addstr(*args)
+
+    def set_background(self, color):
+        self.win.bkgd(' ', color.pair)
 
     def erase(self):
         self.win.erase()
