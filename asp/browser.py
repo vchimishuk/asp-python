@@ -72,9 +72,9 @@ class Window(window.Window):
     def __init__(self, x, y, width, height):
         super().__init__(x, y, width, height)
 
-        self.path_win = self.subwin(self.x, self.y, self.width, 1)
+        self.path_win = self.subwin(0, 0, self.width, 1)
         self.path_win.set_background(color.BROWSER_PATH)
-        self.list_win = self.subwin(self.x, self.y + 1, self.width, self.height - 1)
+        self.list_win = self.subwin(0, 1, self.width, self.height - 1)
 
         self.selected = 0
         self.entries = []

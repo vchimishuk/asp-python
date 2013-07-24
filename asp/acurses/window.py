@@ -8,12 +8,12 @@ class Window:
     """
     def __init__(self, x, y, width, height, parent=None):
         if parent:
-            self.win = parent.subwin(height, width, y, x)
+            self.win = parent.win.subwin(height, width, parent.y + y, parent.x + x)
         else:
             self.win = curses.newwin(height, width, y, x)
 
     def subwin(self, x, y, width, height):
-        return Window(x, y, width, height, self.win)
+        return Window(x, y, width, height, self)
 
     def write(self, x, y, text, color=None, maxlen=None):
         args = [y, x, text]
@@ -28,7 +28,7 @@ class Window:
         else:
             self.win.addstr(*args)
 
-    def set_background(self, color):
+    def bkgd(self, color):
         self.win.bkgd(' ', color.pair)
 
     def erase(self):
@@ -51,13 +51,13 @@ class Window:
 
     @property
     def y(self):
-        y, x = self.win.getyx()
+        y, x = self.win.getbegyx()
 
         return y
 
     @property
     def x(self):
-        y, x = self.win.getyx()
+        y, x = self.win.getbegyx()
 
         return x
 
