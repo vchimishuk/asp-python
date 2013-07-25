@@ -1,6 +1,7 @@
 import controller
 import window
 import command
+import color
 
 
 class Controller(controller.Controller):
@@ -45,6 +46,7 @@ class Window(window.Window):
         super().__init__(x, y, width, height)
 
         self.tabs_win = self.subwin(0, 0, self.width, 1)
+        self.tabs_win.set_background(color.PLAYLIST_TAB)
         self.list_win = self.subwin(0, 1, self.width, self.height - 1)
 
     def refresh(self):
@@ -55,5 +57,10 @@ class Window(window.Window):
 
     def set_playlists(self, plists):
         self.tabs_win.erase()
-        self.tabs_win.write(1, 0, str(plists))
+
+        titles = []
+        for p in plists:
+            titles.append(p)
+
+        self.tabs_win.write(1, 0, ', '.join(titles))
         self.refresh()

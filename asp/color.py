@@ -43,8 +43,13 @@ class Color:
         return self.color_pair
 
 
-BROWSER_PATH = Color('browser_path', 'Browser window path line', BLACK, BLUE)
-PLAYLIST_TAB = Color('browser_path', 'Browser window path line', BLACK, BLUE)
-PLAYLIST_TAB_SELECTED = Color('browser_path', 'Browser window path line', BLACK, RED)
-SELECTED = Color('selected', 'Selected list item', CYAN, BLACK)
-
+BROWSER_PATH = Color('browser_path', 'Browser window path line',
+                     BLACK, BLUE)
+PLAYLIST_TAB = Color('playlist_tab', 'Playlist window tab',
+                     BLACK, BLUE)
+PLAYLIST_TAB_SELECTED = Color('playlist_tab_selected', 'Playlist window selected tab',
+                              BLACK, RED)
+STATUS_LINE = Color('status_line', 'Status line',
+                    BLACK, BLUE)
+LIST_SELECTED = Color('list_selected', 'Selected list item',
+                      CYAN, BLACK)

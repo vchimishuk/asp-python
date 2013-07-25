@@ -5,6 +5,7 @@ import command
 import browser
 import playlist
 import prompt
+import status
 
 
 class Application:
@@ -31,6 +32,10 @@ class Application:
         height, width = self.stdscr.getmaxyx()
 
         # Creation of status (bottom screen) windows.
+        win = status.Window(0, height - 2, width, 1)
+        self.status_controller = status.Controller(win)
+        self.status_controller.activate()
+
         win = prompt.Window(0, height - 1, width, 1)
         self.prompt_controller = prompt.Controller(win)
         self.prompt_controller.activate()

@@ -100,7 +100,7 @@ class Window(window.Window):
             c = None
 
             if self.selected == y:
-                c = color.SELECTED
+                c = color.LIST_SELECTED
 
             self.list_win.write(1, y, s, c)
 
