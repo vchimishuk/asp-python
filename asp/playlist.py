@@ -35,7 +35,9 @@ class Controller(controller.Controller):
 
     def cmd_new_playlist(self):
         name = self.prompt('Playlist name')
-        self.client.add_playlist(name)
+
+        if name:
+            self.client.add_playlist(name)
 
     def cmd_up(self):
         pass

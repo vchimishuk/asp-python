@@ -78,12 +78,34 @@ class Panel(Window):
         self.refresh()
 
 
-class Textbox(Window):
+class CursesTextbox(textpad.Textbox):
+    """
+    Curses Textbox improvement wrapper class.
+    """
+    def do_command(self, ch):
+        if ch == curses.ascii.BEL or ch == curses.ascii.ESC: # ^G or Escape
+            # Clear input.
+            super().do_command(curses.ascii.SOH)
+            super().do_command(curses.ascii.VT)
+
+            return False
+        elif ch == curses.ascii.NL: # ^J
+            return False
+        else:
+            return super().do_command(ch)
+
+
+class Textbox:
     """
     Curses Textbox object wrapper.
     """
     def __init__(self, win):
-        self.textbox = textpad.Textbox(win.win)
+        self.win = win
+        self.textbox = CursesTextbox(win.win)
 
     def edit(self):
-        return self.textbox.edit()
+        s = self.textbox.edit()
+        self.win.erase()
+        self.win.refresh()
+
+        return s

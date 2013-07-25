@@ -10,6 +10,9 @@ class Controller(controller.StatusController):
         s = self.window.prompt(ps).strip()
         self.set_input_mode(False)
 
+        if not len(s):
+            s = None
+
         return s
 
     def set_input_mode(self, on):
@@ -30,5 +33,8 @@ class Window(window.Window):
         left = len(ps) + 2
         input = self.subwin(left, 0, self.width - left, 1).textbox()
         s = input.edit()
+
+        self.erase()
+        self.refresh()
 
         return s
