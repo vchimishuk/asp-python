@@ -2,9 +2,13 @@ import curses
 
 
 a = ord('a')
+h = ord('h')
+l = ord('l')
 n = ord('n')
 q = ord('q')
 A = ord('A')
+H = ord('H')
+L = ord('L')
 N = ord('N')
 Q = ord('Q')
 BACKSPACE = curses.KEY_BACKSPACE

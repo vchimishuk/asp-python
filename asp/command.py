@@ -58,6 +58,12 @@ register_cmd('ENTER', BROWSER,
 register_cmd('NEW_PLAYLIST', PLAYLIST,
              'new_playlist', 'Create new playlist',
              (key.n, key.N))
+register_cmd('NEXT_PLAYLIST', PLAYLIST,
+             'next_playlist', 'Switch to next playlist',
+             (key.l, key.L))
+register_cmd('PREV_PLAYLIST', PLAYLIST,
+             'prev_playlist', 'Switch to previous playlist',
+             (key.h, key.H))
 register_cmd('SWITCH_WINDOW', GLOBAL,
              'switch_window', 'Switch window',
              key.TAB)

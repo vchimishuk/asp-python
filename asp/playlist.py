@@ -15,17 +15,31 @@ class Controller(controller.Controller):
         self.register_command(command.DOWN, self.cmd_down)
         self.register_command(command.ENTER, self.cmd_enter)
         self.register_command(command.NEW_PLAYLIST, self.cmd_new_playlist)
+        self.register_command(command.NEXT_PLAYLIST, self.cmd_next_playlist)
+        self.register_command(command.PREV_PLAYLIST, self.cmd_prev_playlist)
         self.register_command(command.UP, self.cmd_up)
 
-        self.set_playlists(self.client.playlists())
+        self.set_playlists(self.client.playlists(), 0)
 
-    def set_playlists(self, plists):
+    def set_playlists(self, plists, selected=0):
+        self.playlists = plists
+        self.selected_playlist = selected
+
         l = []
-        for p in plists:
+        for i in range(len(plists)):
             # TODO: Formatter.
-            l.append('{0} ({1})'.format(p.name, p.length))
+            p = plists[i]
+            if i == selected:
+                l.append('[' + p.name + ']')
+            else:
+                l.append(p.name)
 
         self.window.set_playlists(l)
+
+    def set_current_playlist(self, name):
+        for i in range(len(self.playlists)):
+            if self.playlists[i].name == name:
+                self.current_playlist = i
 
     def cmd_down(self):
         pass
@@ -38,6 +52,16 @@ class Controller(controller.Controller):
 
         if name:
             self.client.add_playlist(name)
+
+    def cmd_next_playlist(self):
+        i = (self.selected_playlist + 1) % len(self.playlists)
+        self.set_playlists(self.playlists, i)
+
+    def cmd_prev_playlist(self):
+        i = self.selected_playlist - 1
+        if i < 0:
+            i = max(0, len(self.playlists) - 1)
+        self.set_playlists(self.playlists, i)
 
     def cmd_up(self):
         pass
