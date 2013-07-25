@@ -1,5 +1,6 @@
 import curses
 from curses import panel
+from curses import textpad
 
 
 class Window:
@@ -75,3 +76,14 @@ class Panel(Window):
         self.panel.top()
         panel.update_panels()
         self.refresh()
+
+
+class Textbox(Window):
+    """
+    Curses Textbox object wrapper.
+    """
+    def __init__(self, win):
+        self.textbox = textpad.Textbox(win.win)
+
+    def edit(self):
+        return self.textbox.edit()

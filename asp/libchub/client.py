@@ -36,6 +36,7 @@ class Client:
     ENTRY_TYPE_TRACK = 'TRACK'
 
     # TODO: Test bad command name error.
+    CMD_ADD_PLAYLIST = 'ADDPLAYLIST'
     CMD_LS = 'LS'
     CMD_PING = 'PING'
     CMD_PLAYLISTS = 'PLAYLISTS'
@@ -58,6 +59,14 @@ class Client:
             self.read_response()
         except ProtocolError as e:
             raise ConnectionError('Server greetings failed. ' + e.msg)
+
+    def add_playlist(self, name):
+        """
+        add_playlist(name) -> None
+        Create new playlist with given name.
+        """
+        self.write_command(Client.CMD_ADD_PLAYLIST, name)
+        self.read_response()
 
     def ls(self, path):
         """

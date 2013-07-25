@@ -1,10 +1,10 @@
 import curses
 from acurses import color
 from acurses import key
-from acurses.window import Window, Panel
+from acurses.window import Window, Panel, Textbox
 
 
-__all__ = ['Window', 'Panel',
+__all__ = ['Window', 'Panel', 'Textbox',
            'wrapper', 'echo', 'cbreak', 'cursor',
            'color', 'key']
 

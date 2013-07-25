@@ -46,9 +46,24 @@ def key_to_cmd(key, controller):
     return None
 
 
-register_cmd('BACK', BROWSER, 'back', 'Go to parent directory', key.BACKSPACE)
-register_cmd('DOWN', (BROWSER, PLAYLIST), 'down', 'Move cursor down', key.DOWN)
-register_cmd('ENTER', BROWSER, 'enter', 'Enter into directory', key.ENTER)
-register_cmd('SWITCH_WINDOW', GLOBAL, 'switch_window', 'Switch window', key.TAB)
-register_cmd('UP', (BROWSER, PLAYLIST), 'up', 'Move cursor up', key.UP)
-register_cmd('QUIT', GLOBAL, 'quit', 'Quit application', (key.q, key.Q))
+register_cmd('BACK', BROWSER, 'back',
+             'Go to parent directory',
+             key.BACKSPACE)
+register_cmd('DOWN', (BROWSER, PLAYLIST),
+             'down', 'Move cursor down',
+             key.DOWN)
+register_cmd('ENTER', BROWSER,
+             'enter', 'Enter into directory',
+             key.ENTER)
+register_cmd('NEW_PLAYLIST', PLAYLIST,
+             'new_playlist', 'Create new playlist',
+             (key.n, key.N))
+register_cmd('SWITCH_WINDOW', GLOBAL,
+             'switch_window', 'Switch window',
+             key.TAB)
+register_cmd('UP', (BROWSER, PLAYLIST),
+             'up', 'Move cursor up',
+             key.UP)
+register_cmd('QUIT', GLOBAL,
+             'quit', 'Quit application',
+             (key.q, key.Q))

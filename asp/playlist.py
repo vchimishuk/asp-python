@@ -13,6 +13,7 @@ class Controller(controller.Controller):
 
         self.register_command(command.DOWN, self.cmd_down)
         self.register_command(command.ENTER, self.cmd_enter)
+        self.register_command(command.NEW_PLAYLIST, self.cmd_new_playlist)
         self.register_command(command.UP, self.cmd_up)
 
         self.set_playlists(self.client.playlists())
@@ -30,6 +31,10 @@ class Controller(controller.Controller):
 
     def cmd_enter(self):
         pass
+
+    def cmd_new_playlist(self):
+        name = self.prompt('Playlist name')
+        self.client.add_playlist(name)
 
     def cmd_up(self):
         pass

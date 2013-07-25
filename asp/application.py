@@ -4,6 +4,7 @@ import acurses
 import command
 import browser
 import playlist
+import prompt
 
 
 class Application:
@@ -27,14 +28,20 @@ class Application:
             print('Connection failed. ' + str(e))
             sys.exit(1)
 
-        # UI creation.
         height, width = self.stdscr.getmaxyx()
+
+        # Creation of status (bottom screen) windows.
+        win = prompt.Window(0, height - 1, width, 1)
+        self.prompt_controller = prompt.Controller(win)
+        self.prompt_controller.activate()
         
-        wnd = browser.Window(0, 0, width, height - 4)
-        self.browser_controller = browser.Controller(wnd, self.client)
+        # Creation of main windows.
+        win = browser.Window(0, 0, width, height - 4)
+        self.browser_controller = browser.Controller(win, self.client)
         self.browser_controller.set_path('/')
-        wnd = playlist.Window(0, 0, width, height - 4)
-        self.playlist_controller = playlist.Controller(wnd, self.client)
+        win = playlist.Window(0, 0, width, height - 4)
+        self.playlist_controller = playlist.Controller(win, self.client)
+        self.playlist_controller.set_prompt_provider(self.prompt_controller.prompt)
 
         # Set active controller.
         self.controller = self.browser_controller

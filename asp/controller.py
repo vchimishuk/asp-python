@@ -1,4 +1,8 @@
 class Controller:
+    """
+    Main window (browser, playlist, etc) basic controller implementation.
+    """
+
     # Must be defined in childs.
     NAME = 'NONE'
 
@@ -36,6 +40,31 @@ class Controller:
         Brings this controller to top, which mean it will receives user's input
         and its screen will be visible.
         """
-        #self.window.activate()
+        self.window.top()
+        self.window.refresh()
+
+    def set_prompt_provider(self, provider):
+        """
+        Set prompt provider function.
+        provider function can be called with prompt string argument
+        to receive some user input.
+        """
+        self.prompt_provider = provider
+
+    def prompt(self, ps):
+        """
+        Ask user for some string value to input.
+        """
+        return self.prompt_provider(ps)
+
+
+class StatusController:
+    """
+    Status window (prompt, status) base controller implementation.
+    """
+    def __init__(self, win):
+        self.window = win
+
+    def activate(self):
         self.window.top()
         self.window.refresh()
