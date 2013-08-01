@@ -8,6 +8,8 @@ import prompt
 import status
 
 
+# TODO: Decouple Application from controllers.
+#       Controllers management should not be inside Application.
 class Application:
     def __init__(self, stdscr):
         stdscr.clear()
@@ -42,10 +44,10 @@ class Application:
         
         # Creation of main windows.
         win = browser.Window(0, 0, width, height - 4)
-        self.browser_controller = browser.Controller(win, self.client)
+        self.browser_controller = browser.Controller(self, win)
         self.browser_controller.set_path('/')
         win = playlist.Window(0, 0, width, height - 4)
-        self.playlist_controller = playlist.Controller(win, self.client)
+        self.playlist_controller = playlist.Controller(self, win)
         self.playlist_controller.set_prompt_provider(self.prompt_controller.prompt)
 
         # Set active controller.

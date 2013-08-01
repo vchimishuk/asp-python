@@ -9,11 +9,10 @@ from libchub.entry import Directory
 class Controller(controller.Controller):
     NAME = command.BROWSER
 
-    def __init__(self, win, client):
-        super().__init__(win)
+    def __init__(self, app, win):
+        super().__init__(app, win)
 
-        self.client = client
-
+        self.register_command(command.ADD, self.cmd_add)
         self.register_command(command.BACK, self.cmd_back)
         self.register_command(command.DOWN, self.cmd_down)
         self.register_command(command.ENTER, self.cmd_enter)
@@ -25,7 +24,7 @@ class Controller(controller.Controller):
     def set_path(self, path, forward=True):
         up_path = os.path.normpath(os.path.join(path, '..'))
         up = Directory('..', up_path)
-        self.entries = [up] + self.client.ls(path)
+        self.entries = [up] + self.app.client.ls(path)
 
         # Restore selection on navigation back.
         self.selected = 0
@@ -59,6 +58,15 @@ class Controller(controller.Controller):
         else:
             # TODO: Play track.
             pass
+
+    def cmd_add(self):
+        e = self.entries[self.selected]
+
+        if self.is_directory(e):
+            plist = self.app.playlist
+            self.app.client.add(plist.name, e)
+        else:
+            pass # TODO:
 
     def cmd_back(self):
         updir = self.entries[0]

@@ -9,7 +9,8 @@ class Controller:
     """
     Basic controller implementation.
     """
-    def __init__(self, window):
+    def __init__(self, app, window):
+        self.app = app
         self.window = window
         self.command_handlers = {}
 

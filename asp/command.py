@@ -46,6 +46,9 @@ def key_to_cmd(key, controller):
     return None
 
 
+register_cmd('ADD', BROWSER, 'add',
+             'Add track or directory to the current playlist',
+             (key.a, key.A))
 register_cmd('BACK', BROWSER, 'back',
              'Go to parent directory',
              key.BACKSPACE)

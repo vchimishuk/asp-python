@@ -7,10 +7,8 @@ import color
 class Controller(controller.Controller):
     NAME = command.PLAYLIST
 
-    def __init__(self, win, client):
-        super().__init__(win)
-
-        self.client = client
+    def __init__(self, app, win):
+        super().__init__(app, win)
 
         self.register_command(command.DOWN, self.cmd_down)
         self.register_command(command.ENTER, self.cmd_enter)
@@ -19,7 +17,7 @@ class Controller(controller.Controller):
         self.register_command(command.PREV_PLAYLIST, self.cmd_prev_playlist)
         self.register_command(command.UP, self.cmd_up)
 
-        self.set_playlists(self.client.playlists(), 0)
+        self.set_playlists(self.app.client.playlists(), 0)
 
     def set_playlists(self, plists, selected=0):
         self.playlists = plists
@@ -30,16 +28,17 @@ class Controller(controller.Controller):
             # TODO: Formatter.
             p = plists[i]
             if i == selected:
+                self.app.playlist = p
                 l.append('[' + p.name + ']')
             else:
                 l.append(p.name)
 
         self.window.set_playlists(l)
 
-    def set_current_playlist(self, name):
-        for i in range(len(self.playlists)):
-            if self.playlists[i].name == name:
-                self.current_playlist = i
+    # def set_current_playlist(self, name):
+    #     for i in range(len(self.playlists)):
+    #         if self.playlists[i].name == name:
+    #             self.current_playlist = i
 
     def cmd_down(self):
         pass
@@ -51,7 +50,7 @@ class Controller(controller.Controller):
         name = self.prompt('Playlist name')
 
         if name:
-            self.client.add_playlist(name)
+            self.app.client.add_playlist(name)
 
     def cmd_next_playlist(self):
         i = (self.selected_playlist + 1) % len(self.playlists)
