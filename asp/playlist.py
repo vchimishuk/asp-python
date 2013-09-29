@@ -17,11 +17,21 @@ class Controller(controller.Controller):
         self.register_command(command.PREV_PLAYLIST, self.cmd_prev_playlist)
         self.register_command(command.UP, self.cmd_up)
 
-        self.set_playlists(self.app.client.playlists(), 0)
+        self.refresh_playlists(0)
 
-    def set_playlists(self, plists, selected=0):
+    def refresh_playlists(self, selected=None):
+        self.set_playlists(self.app.client.playlists(), selected)
+
+    def set_playlists(self, plists, selected=None):
+        if selected is not None:
+            self.selected_playlist = selected
+        else:
+            if self.selected_playlist >= len(plists):
+                # TODO: Current displayed playlist was deleted.
+                #       Just switch to the first one.
+                self.selected_playlist = 0
+
         self.playlists = plists
-        self.selected_playlist = selected
 
         l = []
         for i in range(len(plists)):
