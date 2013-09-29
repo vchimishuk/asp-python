@@ -1,38 +1,39 @@
-class Playlist:
+class Entry:
+    """
+    Basic protocol object implemenation.
+    """
+    def __init__(self, d):
+        """
+        """
+        for k, v in d.items():
+            setattr(self, k.lower(), v)
+
+
+class Playlist(Entry):
     """
     Playlist model.
     """
-    __slots__ = ['name', 'length']
-    def __init__(self, name, length):
-        self.name = name
-        self.length = length
+    __slots__ = 'name', 'length'
 
     def __str__(self):
         return self.name
 
 
-class Directory:
+class Directory(Entry):
     """
     Filesystem directory model.
     """
-    __slots__ = ['name', 'path']
-    
-    def __init__(self, name, path):
-        self.name = name
-        self.path = path
+    __slots__ = 'name', 'path'
 
     def __str__(self):
         return '[{0}]'.format(self.name)
 
 
-class Track:
+class Track(Entry):
     """
     Track filesystem or playlist entry model.
     """
-    __slots__ = ['path', 'artist', 'album', 'title']
-    def __init__(self, **kwargs):
-        for key, val in kwargs.items():
-            setattr(self, key, val)
+    __slots__ = 'path', 'artist', 'album', 'title'
 
     def __str__(self):
         return '{0} - {1} - {2}'.format(self.artist, self.album, self.title)

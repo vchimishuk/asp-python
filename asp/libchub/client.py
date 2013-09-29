@@ -1,5 +1,6 @@
 import socket
 import itertools
+from collections import defaultdict
 from libchub.textsocket import TextSocket
 from libchub.entry import Playlist, Directory, Track
 
@@ -27,25 +28,7 @@ class ProtocolError(Exception):
         return self.msg
 
 
-# TODO: Add debug logging.
-class Client:
-    STATUS_OK = "OK"
-    STATUS_ERR = "ERR"
-
-    ENTRY_TYPE_DIR = 'DIRECTORY'
-    ENTRY_TYPE_TRACK = 'TRACK'
-
-    # TODO: Test bad command name error.
-    CMD_ADD = 'ADD'
-    CMD_ADD_PLAYLIST = 'ADDPLAYLIST'
-    CMD_LS = 'LS'
-    CMD_PING = 'PING'
-    CMD_PLAYLISTS = 'PLAYLISTS'
-    CMD_QUIT = 'QUIT'
-    
-    """
-    Chub client protocol implementation.
-    """
+class TextProtocolClient:
     def __init__(self):
         self.sock = TextSocket()
 
@@ -55,11 +38,78 @@ class Client:
         except socket.error as e:
             raise ConnectionError(e.strerror)
 
+    def write_command(self, cmd, *args):
+        """
+        write_command() -> None
+        Send command to the server.
+        """
+        self.sock.write(cmd)
+        if len(args):
+            self.sock.write(' ')
+        self.sock.write(' '.join(['"' + a + '"' for a in args]))
+        self.sock.write('\n')
+
+    def parse_dict(self, line):
+        """
+        parse_dict(line) -> dict
+        parse_dict parses protocol key-value line to dict.
+        """
+        try:
+            return parse_dict(line)
+        except ValueError as e:
+            raise ProtocolError('Failed to parse server response.' + str(e))
+
+    def read_response(self):
+        """
+        read_response() -> [response lines]
+        bool return value indicates is server responsed with OK or ERROR status.
+        """
+        status = self.sock.readline()
+        lines = []
+
+        while True:
+            s = self.sock.readline()
+
+            if s:
+                lines.append(s)
+            else:
+                break
+
+        if status == Client.STATUS_OK:
+            return lines
+        elif not len(status):
+            raise ConnectionError('Server connection is dead')
+        else:
+            raise ProtocolError(' '.join(lines))
+
+
+# TODO: Add debug logging.
+class Client(TextProtocolClient):
+    STATUS_OK = "OK"
+    STATUS_ERR = "ERR"
+
+    ENTRY_TYPE_DIR = 'DIRECTORY'
+    ENTRY_TYPE_TRACK = 'TRACK'
+
+    CMD_ADD = 'ADD'
+    CMD_ADD_PLAYLIST = 'ADDPLAYLIST'
+    CMD_LS = 'LS'
+    CMD_PING = 'PING'
+    CMD_PLAYLISTS = 'PLAYLISTS'
+    CMD_QUIT = 'QUIT'
+
+    """
+    Chub client protocol implementation.
+    """
+    def connect(self, *args, **kwargs):
+        super().connect(*args, **kwargs)
+
         # Read server's greetings.
         try:
             self.read_response()
         except ProtocolError as e:
             raise ConnectionError('Server greetings failed. ' + e.msg)
+
 
     def add(self, playlist, entry):
         """
@@ -87,9 +137,9 @@ class Client:
         for l in self.read_response():
             d = self.parse_dict(l)
             if d['Type'] == Client.ENTRY_TYPE_DIR:
-                e = Directory(d['Name'], d['Path'])
+                e = Directory(d)
             else:
-                e = Track(artist=d['Artist'], album=d['Album'], title=d['Title'])
+                e = Track(d)
 
             entries.append(e)
 
@@ -113,8 +163,7 @@ class Client:
 
         plists = []
         for l in self.read_response():
-            d = self.parse_dict(l)
-            plists.append(Playlist(d['Name'], int(d['Length'])))
+            plists.append(Playlist(self.parse_dict(l)))
 
         return plists
 
@@ -125,49 +174,53 @@ class Client:
         """
         self.write_command(Client.CMD_QUIT)
         self.read_response()
+        self.sock.close()
 
-    def read_response(self):
+
+class NotificationClient(TextProtocolClient):
+    PLAYLIST_CHANGED = 'PLAYLIST_CHANGED'
+    PLAYLISTS_CHANGED = 'PLAYLISTS_CHANGED'
+    STATE_CHANGED = 'STATE_CHANGED'
+    TRACK_CHANGED = 'TRACK_CHANGED'
+    VOLUME_CHANGED = 'VOLUME_CHANGED'
+
+    def __init__(self):
+        super().__init__()
+
+        self.listeners = defaultdict(list)
+
+    def set_listener(self, event, callback):
         """
-        read_response() -> [response lines]
-        bool return value indicates is server responsed with OK or ERROR status.
+        Set event listener.
         """
-        status = self.sock.readline().strip()
-        lines = []
-    
+        self.listeners[event].append(callback)
+
+    def remove_listener(self, event, callback):
+        """
+        Disable listener.
+        """
+        self.listeners[event].remove(callback)
+
+    def listen(self):
+        """
+        Start listening for notifications.
+        """
         while True:
-            s = self.sock.readline().strip()
+            line = self.sock.readline()
 
-            if s:
-                lines.append(s)
+            if not len(line):
+                raise ConnectionError('Server connection is dead')
+
+            p = line.split(' ', 1)
+            event = p[0]
+
+            if len(p) > 1:
+                args = [parse_val(v) for v in p[1]]
             else:
-                break
+                args = []
 
-        if status == Client.STATUS_OK:
-            return lines
-        else:
-            raise ProtocolError(' '.join(lines))
-
-    def write_command(self, cmd, *args):
-        """
-        write_command() -> None
-        Send command to the server.
-        """
-        self.sock.write(cmd)
-        if len(args):
-            self.sock.write(' ')
-        # TODO: Escape string args if needed only.
-        self.sock.write(' '.join(['"' + a + '"' for a in args]))
-        self.sock.write('\n')
-
-    def parse_dict(self, line):
-        """
-        parse_dict(line) -> dict
-        parse_dict parses protocol key-value line to dict.
-        """
-        try:
-            return parse_dict(line)
-        except ValueError as e:
-            raise ProtocolError('Failed to parse server response.' + str(e))
+            for listener in self.listeners[event]:
+                listener(*args)
 
 
 def split_pairs(line):
@@ -179,7 +232,7 @@ def split_pairs(line):
     s = ''
     quote_mode = False
     esc_mode = False
-    
+
     for c in itertools.chain(line, ","):
         if not esc_mode and not quote_mode and c == ',':
             pairs.append(s.strip())
@@ -201,24 +254,31 @@ def split_pairs(line):
     return pairs
 
 
-def parse_dict(line):
+def parse_val(v):
     """
-    parse_dict(line) -> dict
-    Parses server response line to dict.
+    parse_val(raw_value) -> str or int
     """
-    res = {}    
-    
-    pairs = split_pairs(line)
-    for pair in pairs:
-        k, v = [s.strip() for s in pair.split(':', 1)]
-
-        # Conver v from string literal to Python string.
+    if v.startswith('"'):
         v = v.strip('"')
         v = v.replace('\\\\', '\\')
         v = v.replace('\\n', '\n')
         v = v.replace('\\"', '\"')
         v = v.replace('\\\'', '\'')
+    else:
+        v = int(v)
 
-        res[k] = v
+    return v
+
+def parse_dict(line):
+    """
+    parse_dict(line) -> dict
+    Parses server response line to dict.
+    """
+    res = {}
+
+    pairs = split_pairs(line)
+    for pair in pairs:
+        k, v = [s.strip() for s in pair.split(':', 1)]
+        res[k] = parse_val(v)
 
     return res

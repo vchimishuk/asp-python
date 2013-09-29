@@ -23,7 +23,7 @@ class Controller(controller.Controller):
 
     def set_path(self, path, forward=True):
         up_path = os.path.normpath(os.path.join(path, '..'))
-        up = Directory('..', up_path)
+        up = Directory({'name': '..', 'path': up_path})
         self.entries = [up] + self.app.client.ls(path)
 
         # Restore selection on navigation back.
@@ -86,7 +86,7 @@ class Window(window.Window):
 
         self.selected = 0
         self.entries = []
-        
+
     def refresh(self):
         super().refresh()
 
@@ -99,7 +99,7 @@ class Window(window.Window):
 
     def set_entries(self, entries):
         self.entries = entries
-        
+
         self.list_win.erase()
 
         # TODO: Set entry formatter via setter.

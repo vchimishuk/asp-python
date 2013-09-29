@@ -12,7 +12,7 @@ class TextSocket(socket.socket):
     def connect(self, *args, **kwargs):
         super().connect(*args, **kwargs)
         self.fileobject = self.makefile(mode='rw')
-    
+
     def write(self, s):
         """
         write_line() -> None
@@ -22,10 +22,10 @@ class TextSocket(socket.socket):
         if s.endswith('\n'):
             self.fileobject.flush()
 
-    def readline(self, *args, **kwargs):
+    def readline(self):
         """
         read_line() -> line
         Reads one line. Result line doesn't includes new line character
         at the end.
         """
-        return self.fileobject.readline(*args, **kwargs)
+        return self.fileobject.readline().strip()

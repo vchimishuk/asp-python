@@ -1,4 +1,4 @@
 from libchub.client import *
 
 
-__all__ = ['Client', 'ConnectionError', 'ProtocolError']
+__all__ = ['Client', 'NotificationClient', 'ConnectionError', 'ProtocolError']
