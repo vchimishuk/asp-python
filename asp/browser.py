@@ -19,7 +19,6 @@ class Controller(controller.Controller):
         self.register_command(command.UP, self.cmd_up)
 
         self.path = '/'
-        self.selected = 0
 
     def set_path(self, path, forward=True):
         up_path = os.path.normpath(os.path.join(path, '..'))
@@ -27,40 +26,38 @@ class Controller(controller.Controller):
         self.entries = [up] + self.app.client.ls(path)
 
         # Restore selection on navigation back.
-        self.selected = 0
+        selected = 0
         for i in range(len(self.entries)):
             e = self.entries[i]
             if self.is_directory(e) and e.path == self.path:
-                self.selected = i
+                selected = i
         self.path = path
 
         self.window.set_path(path)
-        self.window.set_selected(self.selected)
-        self.window.set_entries(self.entries)
-        self.window.refresh()
+        self.window.set_selected(selected)
+        self.window.set_items(self.entries)
+        self.window_refresh()
 
     def cmd_down(self):
-        if self.selected + 1 < len(self.entries):
-            self.selected += 1
-            self.window.set_selected(self.selected)
-            self.window.refresh()
+        self.window.select_next()
+        self.window_refresh()
 
     def cmd_up(self):
-        if self.selected > 0:
-            self.selected -= 1
-            self.window.set_selected(self.selected)
-            self.window.refresh()
+        self.window.select_prev()
+        self.window_refresh()
 
     def cmd_enter(self):
-        e = self.entries[self.selected]
+        selected = self.window.get_selected()
+
+        e = self.entries[selected]
         if self.is_directory(e):
-            self.set_path(e.path, self.selected != 0)
+            self.set_path(e.path, selected != 0)
         else:
             # TODO: Play track.
             pass
 
     def cmd_add(self):
-        e = self.entries[self.selected]
+        e = self.entries[self.window.get_selected()]
 
         if self.is_directory(e):
             plist = self.app.playlist
@@ -82,10 +79,15 @@ class Window(window.Window):
 
         self.path_win = self.subwin(0, 0, self.width, 1)
         self.path_win.set_background(color.BROWSER_PATH)
-        self.list_win = self.subwin(0, 1, self.width, self.height - 1)
+        self.list_win = window.ListWindow(self, 0, 1, self.width, self.height - 1)
 
-        self.selected = 0
         self.entries = []
+
+    def activate(self):
+        super().activate()
+
+        self.path_win.activate()
+        self.list_win.activate()
 
     def refresh(self):
         super().refresh()
@@ -97,21 +99,17 @@ class Window(window.Window):
         self.path_win.erase()
         self.path_win.write(1, 0, path)
 
-    def set_entries(self, entries):
-        self.entries = entries
+    def set_items(self, items):
+        self.list_win.set_items(items)
 
-        self.list_win.erase()
-
-        # TODO: Set entry formatter via setter.
-        for y in range(len(entries)):
-            s = str(entries[y])
-            c = None
-
-            if self.selected == y:
-                c = color.LIST_SELECTED
-
-            self.list_win.write(1, y, s, c)
+    def get_selected(self):
+        return self.list_win.get_selected()
 
     def set_selected(self, i):
-        self.selected = i
-        self.set_entries(self.entries)
+        self.list_win.set_selected(i)
+
+    def select_next(self):
+        self.list_win.select_next()
+
+    def select_prev(self):
+        self.list_win.select_prev()

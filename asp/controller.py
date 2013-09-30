@@ -13,6 +13,7 @@ class Controller:
         self.app = app
         self.window = window
         self.command_handlers = {}
+        self.active = False
 
     def register_command(self, cmd, handler):
         self.command_handlers[cmd] = handler
@@ -43,6 +44,21 @@ class Controller:
         """
         self.window.top()
         self.window.refresh()
+        self.active = True
+
+    def deactivate(self):
+        """
+        Switch controller to the inactive state. Inactive controller will not
+        get any user input and should not refresh its windows.
+        """
+        self.active = False
+
+    def window_refresh(self):
+        """
+        Refresh the main controller window if controller is active now.
+        """
+        if self.active:
+            self.window.refresh()
 
     def set_prompt_provider(self, provider):
         """

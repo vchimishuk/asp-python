@@ -95,6 +95,7 @@ class Client(TextProtocolClient):
     CMD_ADD_PLAYLIST = 'ADDPLAYLIST'
     CMD_LS = 'LS'
     CMD_PING = 'PING'
+    CMD_PLAYLIST = 'PLAYLIST'
     CMD_PLAYLISTS = 'PLAYLISTS'
     CMD_QUIT = 'QUIT'
 
@@ -167,6 +168,19 @@ class Client(TextProtocolClient):
 
         return plists
 
+    def playlist(self, name):
+        """
+        playlist(name) -> [track]
+        Returns tracks list in the playlist.
+        """
+        self.write_command(Client.CMD_PLAYLIST, name)
+
+        tracks = []
+        for l in self.read_response():
+            tracks.append(Track(self.parse_dict(l)))
+
+        return tracks
+
     def quit(self):
         """
         quit() -> None
@@ -215,7 +229,9 @@ class NotificationClient(TextProtocolClient):
             event = p[0]
 
             if len(p) > 1:
-                args = [parse_val(v) for v in p[1]]
+                # TODO: Now supported only one parameter. Split values.
+                #args = [parse_val(v) for v in p[1]]
+                args = [parse_val(p[1])]
             else:
                 args = []
 

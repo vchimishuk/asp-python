@@ -46,6 +46,7 @@ class Application:
         self.client = Client()
         self.notif_client = NotificationClient()
         self.notif_client.set_listener(NotificationClient.PLAYLISTS_CHANGED, self.on_playlists_changed)
+        self.notif_client.set_listener(NotificationClient.PLAYLIST_CHANGED, self.on_playlist_changed)
 
         # TODO: Handle connection loose in a right way.
         try:
@@ -61,11 +62,9 @@ class Application:
         # Creation of status (bottom screen) windows.
         win = status.Window(0, height - 2, width, 1)
         self.status_controller = status.Controller(win)
-        self.status_controller.activate()
 
         win = prompt.Window(0, height - 1, width, 1)
         self.prompt_controller = prompt.Controller(win)
-        self.prompt_controller.activate()
 
         # Creation of main windows.
         win = browser.Window(0, 0, width, height - 4)
@@ -88,8 +87,12 @@ class Application:
                                  command.QUIT: self.cmd_quit}
 
     @synchronize
-    def on_playlists_changed(self):
-        self.playlist_controller.refresh_playlists()
+    def on_playlists_changed(self, *args, **kwargs):
+        self.playlist_controller.on_plists_changed(*args, **kwargs)
+
+    @synchronize
+    def on_playlist_changed(self, *args, **kwargs):
+        self.playlist_controller.on_plist_changed(*args, **kwargs)
 
     def getch(self):
         return self.stdscr.getch()
@@ -119,8 +122,10 @@ class Application:
     def cmd_switch_window(self):
         if self.controller == self.browser_controller:
             self.controller = self.playlist_controller
+            self.browser_controller.deactivate()
         else:
             self.controller = self.browser_controller
+            self.playlist_controller.deactivate()
 
         self.controller.activate()
 

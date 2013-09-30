@@ -12,67 +12,97 @@ class Controller(controller.Controller):
 
         self.register_command(command.DOWN, self.cmd_down)
         self.register_command(command.ENTER, self.cmd_enter)
-        self.register_command(command.NEW_PLAYLIST, self.cmd_new_playlist)
-        self.register_command(command.NEXT_PLAYLIST, self.cmd_next_playlist)
-        self.register_command(command.PREV_PLAYLIST, self.cmd_prev_playlist)
+        self.register_command(command.NEW_PLAYLIST, self.cmd_new_plist)
+        self.register_command(command.NEXT_PLAYLIST, self.cmd_next_plist)
+        self.register_command(command.PREV_PLAYLIST, self.cmd_prev_plist)
         self.register_command(command.UP, self.cmd_up)
 
-        self.refresh_playlists(0)
+        self.selected = None
+        self.plists_cache = {}
+        self.load_plists()
 
-    def refresh_playlists(self, selected=None):
-        self.set_playlists(self.app.client.playlists(), selected)
+    def load_plists(self):
+        plists = self.app.client.playlists()
 
-    def set_playlists(self, plists, selected=None):
-        if selected is not None:
-            self.selected_playlist = selected
-        else:
-            if self.selected_playlist >= len(plists):
-                # TODO: Current displayed playlist was deleted.
-                #       Just switch to the first one.
-                self.selected_playlist = 0
+        self.set_plists(plists)
+        self.set_plist(self.selected)
 
-        self.playlists = plists
+    def set_plists(self, plists, selected=None):
+        if selected:
+            self.selected = selected
+
+        # Check if current playlist is stil exists.
+        if self.selected:
+            s = None
+            for p in plists:
+                if p.name == self.selected:
+                    s = p.name
+            self.selected = s
+
+        # or select first one by default.
+        if not self.selected and len(plists):
+            self.selected = plists[0].name
+
+        self.plists = plists
 
         l = []
-        for i in range(len(plists)):
+        for p in plists:
             # TODO: Formatter.
-            p = plists[i]
-            if i == selected:
+            if p.name == self.selected:
                 self.app.playlist = p
                 l.append('[' + p.name + ']')
             else:
                 l.append(p.name)
 
-        self.window.set_playlists(l)
+        self.window.set_plists(l)
+        self.window_refresh()
 
-    # def set_current_playlist(self, name):
-    #     for i in range(len(self.playlists)):
-    #         if self.playlists[i].name == name:
-    #             self.current_playlist = i
+    def set_plist(self, name):
+        if name not in self.plists_cache:
+            self.plists_cache[name] = self.app.client.playlist(name)
 
-    def cmd_down(self):
-        pass
+        self.window.set_tracks(self.plists_cache[name])
+        self.window_refresh()
 
-    def cmd_enter(self):
-        pass
+    def on_plists_changed(self):
+        self.load_plists()
 
-    def cmd_new_playlist(self):
+    def on_plist_changed(self, name):
+        if name in self.plists_cache:
+            del self.plists_cache[name]
+
+        if name == self.selected:
+            self.set_plist(name)
+
+    def cmd_new_plist(self):
         name = self.prompt('Playlist name')
-
         if name:
             self.app.client.add_playlist(name)
 
-    def cmd_next_playlist(self):
-        i = (self.selected_playlist + 1) % len(self.playlists)
-        self.set_playlists(self.playlists, i)
+    def cmd_next_plist(self):
+        for i in range(len(self.plists) - 1):
+            if self.plists[i].name == self.selected:
+                selected = self.plists[i + 1].name
+                self.set_plists(self.plists, selected)
+                self.set_plist(selected)
+                break
 
-    def cmd_prev_playlist(self):
-        i = self.selected_playlist - 1
-        if i < 0:
-            i = max(0, len(self.playlists) - 1)
-        self.set_playlists(self.playlists, i)
+    def cmd_prev_plist(self):
+        for i in range(1, len(self.plists)):
+            if self.plists[i].name == self.selected:
+                selected = self.plists[i - 1].name
+                self.set_plists(self.plists, selected)
+                self.set_plist(selected)
+                break
+
+    def cmd_down(self):
+        self.window.select_next_track()
 
     def cmd_up(self):
+        self.window.select_prev_track()
+
+    def cmd_enter(self):
+        # TODO: Start playing selected track.
         pass
 
 
@@ -82,7 +112,7 @@ class Window(window.Window):
 
         self.tabs_win = self.subwin(0, 0, self.width, 1)
         self.tabs_win.set_background(color.PLAYLIST_TAB)
-        self.list_win = self.subwin(0, 1, self.width, self.height - 1)
+        self.list_win = window.ListWindow(self, 0, 1, self.width, self.height - 1)
 
     def refresh(self):
         super().refresh()
@@ -90,7 +120,7 @@ class Window(window.Window):
         self.tabs_win.refresh()
         self.list_win.refresh()
 
-    def set_playlists(self, plists):
+    def set_plists(self, plists):
         self.tabs_win.erase()
 
         titles = []
@@ -98,4 +128,12 @@ class Window(window.Window):
             titles.append(p)
 
         self.tabs_win.write(1, 0, ', '.join(titles))
-        self.refresh()
+
+    def set_tracks(self, tracks):
+        self.list_win.set_items(tracks)
+
+    def select_next_track(self):
+        self.list_win.select_next()
+
+    def select_prev_track(self):
+        self.list_win.select_prev()
