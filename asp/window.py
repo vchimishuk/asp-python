@@ -50,18 +50,12 @@ class Window:
         return self.win.height
 
 
-class ListWindow:
+class ListWindow(Window):
     def __init__(self, parent, x, y, width, height):
-        self.win = parent.subwin(x, y, width, height)
+        super().__init__(x, y, width, height, parent)
 
         self.items = []
         self.selected = 0
-
-    def refresh(self):
-        self.win.refresh()
-
-    def erase(self):
-        self.win.erase()
 
     def set_items(self, items, selected=None):
         self.items = items
@@ -78,7 +72,7 @@ class ListWindow:
             if self.selected == y:
                 c = color.LIST_SELECTED
 
-            self.win.write(1, y, s, c)
+            self.write(1, y, s, c)
 
     def get_selected(self):
         return self.selected
