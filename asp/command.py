@@ -52,26 +52,38 @@ register_cmd('ADD', BROWSER, 'add',
 register_cmd('BACK', BROWSER, 'back',
              'Go to parent directory',
              key.BACKSPACE)
-register_cmd('DOWN', (BROWSER, PLAYLIST),
-             'down', 'Move cursor down',
+register_cmd('NEXT', (BROWSER, PLAYLIST),
+             'next', 'Move to the next list item',
              key.DOWN)
+register_cmd('END', (BROWSER, PLAYLIST),
+             'end', 'Move to the last list item',
+             (key.END, key.G))
 register_cmd('ENTER', BROWSER,
              'enter', 'Enter into directory',
              key.ENTER)
+register_cmd('HOME', (BROWSER, PLAYLIST),
+             'home', 'Move to the first list item',
+             key.HOME)
 register_cmd('NEW_PLAYLIST', PLAYLIST,
              'new_playlist', 'Create new playlist',
              (key.n, key.N))
+register_cmd('NEXT_PAGE', (BROWSER, PLAYLIST),
+             'next_page', 'Move to the next page',
+             key.PAGE_DOWN)
 register_cmd('NEXT_PLAYLIST', PLAYLIST,
-             'next_playlist', 'Switch to next playlist',
+             'next_playlist', 'Switch to the next playlist',
              (key.l, key.L))
+register_cmd('PREV_PAGE', (BROWSER, PLAYLIST),
+             'prev_page', 'Move to the prevoius page',
+             key.PAGE_UP)
 register_cmd('PREV_PLAYLIST', PLAYLIST,
-             'prev_playlist', 'Switch to previous playlist',
+             'prev_playlist', 'Switch to the previous playlist',
              (key.h, key.H))
 register_cmd('SWITCH_WINDOW', GLOBAL,
              'switch_window', 'Switch window',
              key.TAB)
-register_cmd('UP', (BROWSER, PLAYLIST),
-             'up', 'Move cursor up',
+register_cmd('PREV', (BROWSER, PLAYLIST),
+             'prev', 'Move to the previous list item',
              key.UP)
 register_cmd('QUIT', GLOBAL,
              'quit', 'Quit application',

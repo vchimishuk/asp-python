@@ -10,12 +10,16 @@ class Controller(controller.Controller):
     def __init__(self, app, win):
         super().__init__(app, win)
 
-        self.register_command(command.DOWN, self.cmd_down)
+        self.register_command(command.END, self.cmd_end)
         self.register_command(command.ENTER, self.cmd_enter)
+        self.register_command(command.HOME, self.cmd_home)
         self.register_command(command.NEW_PLAYLIST, self.cmd_new_plist)
+        self.register_command(command.NEXT, self.cmd_next)
+        self.register_command(command.NEXT_PAGE, self.cmd_next_page)
         self.register_command(command.NEXT_PLAYLIST, self.cmd_next_plist)
+        self.register_command(command.PREV, self.cmd_prev)
+        self.register_command(command.PREV_PAGE, self.cmd_prev_page)
         self.register_command(command.PREV_PLAYLIST, self.cmd_prev_plist)
-        self.register_command(command.UP, self.cmd_up)
 
         self.selected = None
         self.plists_cache = {}
@@ -95,11 +99,29 @@ class Controller(controller.Controller):
                 self.set_plist(selected)
                 break
 
-    def cmd_down(self):
+    def cmd_next(self):
         self.window.select_next_track()
+        self.window.refresh()
 
-    def cmd_up(self):
+    def cmd_prev(self):
         self.window.select_prev_track()
+        self.window.refresh()
+
+    def cmd_next_page(self):
+        self.window.select_next_page()
+        self.window.refresh()
+
+    def cmd_prev_page(self):
+        self.window.select_prev_page()
+        self.window.refresh()
+
+    def cmd_home(self):
+        self.window.select_first()
+        self.window.refresh()
+
+    def cmd_end(self):
+        self.window.select_last()
+        self.window.refresh()
 
     def cmd_enter(self):
         # TODO: Start playing selected track.
@@ -137,3 +159,15 @@ class Window(window.Window):
 
     def select_prev_track(self):
         self.list_win.select_prev()
+
+    def select_next_page(self):
+        self.list_win.select_next_page()
+
+    def select_prev_page(self):
+        self.list_win.select_prev_page()
+
+    def select_first(self):
+        self.list_win.select_first()
+
+    def select_last(self):
+        self.list_win.select_last()
